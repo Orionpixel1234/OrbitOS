@@ -1,0 +1,1 @@
+include $(ARCH_DIR)/boot/makefile
