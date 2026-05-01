@@ -11,11 +11,12 @@ STAGE1_BIN := $(BUILD_ARCH_DIR)/stage1.bin
 STAGE2_BIN := $(BUILD_ARCH_DIR)/stage2.bin
 DISK_IMG   := $(BUILD_ARCH_DIR)/boot.img
 
+include libs/libk/makefile
 include arch/makefile
 
 .PHONY: all clean run
 
-all: $(DISK_IMG)
+all: $(DISK_IMG) $(LIBK)
 
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)

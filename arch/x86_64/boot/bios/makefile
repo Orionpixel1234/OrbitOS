@@ -19,7 +19,7 @@ BOOT2_ELF := $(ELF_DIR)/boot2.elf
 PM_BIN    := $(BUILD_ARCH_DIR)/pm.bin
 
 $(STAGE1_BIN): $(STAGE1_SRC) | $(BUILD_ARCH_DIR)
-	./tools/proton -f bin -o $@ $<
+	$(AS) -f bin -o $@ $<
 
 # boot2.asm is a self-contained flat binary (16-bit real mode + GDT, no ELF)
 $(BOOT2_RAW): $(STAGE2_SRC) | $(BUILD_ARCH_DIR)
@@ -29,12 +29,12 @@ $(PM_O): $(PM_SRC) | $(BUILD_ARCH_DIR)
 	$(AS) -f elf32 -o $@ $<
 
 $(BOOTC_O): $(BOOTC_SRC) | $(BUILD_ARCH_DIR)
-	$(CC32) -c -o $@ $<
+	$(CC32) -I$(LIBK_INC) -c -o $@ $<
 
 # Only 32-bit code (pm + C) is linked via ELF, starting at 0x7F00
-$(BOOT2_ELF): $(PM_O) $(BOOTC_O)
+$(BOOT2_ELF): $(PM_O) $(BOOTC_O) $(LIBK_BUILD)/kprintv.o
 	mkdir -p $(ELF_DIR)
-	$(LD) -m elf_i386 -T $(BOOT2_LD) $(PM_O) $(BOOTC_O) -o $@
+	$(LD) -m elf_i386 -T $(BOOT2_LD) $(PM_O) $(BOOTC_O) $(LIBK_BUILD)/kprintv.o -o $@
 
 $(STAGE2_BIN): $(BOOT2_RAW) $(BOOT2_ELF)
 	dd if=$(BOOT2_ELF) of=$(PM_BIN) bs=4096 skip=1
